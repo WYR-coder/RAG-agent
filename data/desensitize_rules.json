@@ -1,0 +1,14 @@
+[
+  {
+    "pattern": "示例公司名称",
+    "replacement": "某司"
+  },
+  {
+    "pattern": "示例项目名称",
+    "replacement": "某项目"
+  },
+  {
+    "pattern": "示例人员姓名",
+    "replacement": "某员工"
+  }
+]

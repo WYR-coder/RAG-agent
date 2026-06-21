@@ -1,0 +1,26 @@
+# RAG-Agent
+.env
+*.pyc
+__pycache__/
+.venv/
+node_modules/
+.next/
+
+# 模型文件 — 通过 scripts/download_models.py 下载
+models/
+
+# 运行时数据 — 用户通过流水线生成
+data/parsed/*
+!data/parsed/.gitkeep
+data/chunks/*
+!data/chunks/.gitkeep
+data/milvus_lite_*
+data/uploads/*
+
+# 临时文件
+temp_*
+*.tmp
+
+# IDE
+.idea/
+.vscode/
