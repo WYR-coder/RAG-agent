@@ -19,15 +19,15 @@
 ## 快速开始
 
 ### 前提条件
-- Docker & Docker Compose
+- Docker & Docker Compose (跨平台推荐)
 - DeepSeek API Key（[申请地址](https://platform.deepseek.com)）
 - 智谱 AI API Key（[申请地址](https://open.bigmodel.cn)）
 - 火山引擎 API Key（[申请地址](https://console.volcengine.com)）— 可选，用于图片分析
 
-### 5 分钟部署
+### 5 分钟部署 (Docker — 全平台通用)
 
 ```bash
-git clone https://github.com/<your-username>/rag-agent.git
+git clone https://github.com/WYR-coder/RAG-agent.git
 cd rag-agent
 
 # 1. 交互式配置 API Key
@@ -38,6 +38,28 @@ docker-compose up -d
 ```
 
 浏览器打开 `http://localhost:3000`，按引导完成初始设置。
+
+### macOS 原生部署 (无需 Docker)
+
+如果你不想安装 Docker Desktop，可以直接在 macOS 上原生运行 (支持 Apple Silicon M1/M2/M3/M4 及 Intel)：
+
+```bash
+git clone https://github.com/WYR-coder/RAG-agent.git
+cd rag-agent
+
+# 一键安装 (Homebrew + Python + Node + 依赖 + 模型下载)
+bash scripts/setup_mac.sh
+
+# 启动 — 开两个终端
+# 终端 1: 后端
+source .venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+
+# 终端 2: 前端
+cd frontend && npm run dev
+```
+
+浏览器打开 `http://localhost:3000`。
 
 ### 使用流程
 
