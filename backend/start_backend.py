@@ -4,26 +4,41 @@ import sys
 import subprocess
 import time
 import socket
+import platform
 
 PREFERRED_PORT = 8080
 MY_PID = str(os.getpid())
+IS_WINDOWS = platform.system() == "Windows"
+
 
 def free_port(port):
     """Kill process holding this specific port (not ourselves)."""
     print(f"[start] Checking port {port}...")
     try:
-        r = subprocess.run(["netstat", "-ano"], capture_output=True, text=True, timeout=8)
-        killed = False
-        for line in r.stdout.splitlines():
-            if f":{port}" in line and "LISTENING" in line:
-                pid = line.strip().split()[-1]
+        if IS_WINDOWS:
+            r = subprocess.run(["netstat", "-ano"], capture_output=True, text=True, timeout=8)
+            killed = False
+            for line in r.stdout.splitlines():
+                if f":{port}" in line and "LISTENING" in line:
+                    pid = line.strip().split()[-1]
+                    if pid == MY_PID:
+                        continue
+                    print(f"[start] Killing PID {pid} on port {port}")
+                    subprocess.run(["taskkill", "/PID", pid, "/F"], capture_output=True, timeout=8)
+                    killed = True
+            if killed:
+                time.sleep(2)
+        else:
+            # macOS / Linux: use lsof
+            r = subprocess.run(["lsof", "-ti", f":{port}"], capture_output=True, text=True, timeout=8)
+            for pid in r.stdout.strip().splitlines():
+                pid = pid.strip()
                 if pid == MY_PID:
                     continue
                 print(f"[start] Killing PID {pid} on port {port}")
-                subprocess.run(["taskkill", "/PID", pid, "/F"], capture_output=True, timeout=8)
-                killed = True
-        if killed:
-            time.sleep(2)
+                subprocess.run(["kill", "-9", pid], capture_output=True, timeout=8)
+            if r.stdout.strip():
+                time.sleep(2)
     except Exception as e:
         print(f"[start] Port check: {e}")
 
