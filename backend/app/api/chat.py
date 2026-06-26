@@ -334,10 +334,6 @@ async def chat_endpoint(req: ChatRequest):
     t0 = time.perf_counter()
 
     # Enrich query with conversation context for better retrieval.
-    # Only enrich for fragments / implicit references. A self-contained
-    # question (>=3 content keywords with new specifiers) stands alone —
-    # otherwise history pollution drags in wrong chunks (e.g. "多层"
-    # contaminating a "超高层" query just because both share "电井").
     enriched_query = req.query
     if req.history:
         last_user = next((h["content"] for h in reversed(req.history) if h["role"] == "user"), "")
@@ -347,11 +343,18 @@ async def chat_endpoint(req: ChatRequest):
             new_terms = curr_terms - last_terms
             # Fragment = very few tokens OR all tokens already in history.
             # But a raw query long enough (>=8 chars) with its own topic
-            # is a new question, not a fragment — even if stop words leave
-            # only 1 content token (e.g. "电力监控系统的设计要求" → just "电力监控").
+            # is a new question, not a fragment.
             is_fragment = (len(curr_terms) < 3 or not new_terms) and len(req.query) < 8
             if is_fragment:
-                enriched_query = f"{last_user} {req.query}"
+                # Only prepend key domain nouns from last turn, not the full
+                # noisy query. "电涌保护器怎么设计呢" → just "电涌保护器".
+                # This prevents noise words ("怎么""设计""呢") from diluting
+                # the retrieval signal for follow-ups like "有参考图吗".
+                domain_tokens = last_terms - curr_terms
+                if domain_tokens:
+                    enriched_query = f"{req.query} {' '.join(domain_tokens)}"
+                else:
+                    enriched_query = f"{last_user} {req.query}"
 
     # Retrieve relevant chunks — use enriched query for better recall on follow-ups
     chunks = retrieve(
