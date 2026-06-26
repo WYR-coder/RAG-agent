@@ -67,6 +67,13 @@ QUERY_SYNONYMS: dict[str, str] = {
     # Knowledge base uses "综合仪表" for power monitoring (metering points
     # table in 强电设计任务书模板), not "电力监控系统".
     "电力监控": "综合仪表",
+    # ── Distribution data aliases ───────────────────────────────────────
+    # Knowledge base uses "配电数据" and "管线" in the charging-pile
+    # distribution table (chunk 59: 表10 充电桩常用配电数据).
+    "配电回路": "配电数据",
+    "配电规格": "配电数据",
+    "线缆": "管线",
+    "线缆选择": "管线选择",
 }
 
 # Load additional synonyms from file if present
